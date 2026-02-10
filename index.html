@@ -3,30 +3,43 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Number Pad Trainer</title>
+    <title>Number Pad Pro</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <div class="container">
-        <h1>Number Pad Trainer</h1>
-        <div id="stats">
-            <span>Time: <span id="timer">60</span>s</span>
-            <span>Score: <span id="score">0</span></span>
-        </div>
+        <h1>Number Pad Pro</h1>
         
-        <div id="display-area">
-            <div id="target-number">Press Start</div>
+        <div id="setup-area">
+            <label for="time-select">Select Duration:</label>
+            <select id="time-select">
+                <option value="30">30 Seconds</option>
+                <option value="45">45 Seconds</option>
+                <option value="60">1 Minute</option>
+            </select>
+            <br><br>
+            <button id="start-btn">Start Test</button>
         </div>
 
-        <input type="text" id="user-input" autocomplete="off" placeholder="Type here..." disabled>
-        
-        <button id="start-btn">Start Test</button>
+        <div id="game-area" class="hidden">
+            <div id="stats">
+                <span>Time: <span id="timer">0</span>s</span>
+                <span>Correct: <span id="score-display">0</span></span>
+            </div>
+            <div id="target-number">----</div>
+            <input type="text" id="user-input" autocomplete="off" placeholder="Type..." disabled>
+        </div>
 
         <div id="results" class="hidden">
-            <h2>Test Complete!</h2>
-            <p>Final Score: <span id="final-score">0</span></p>
-            <p>Accuracy: <span id="accuracy">0</span>%</p>
-            <button onclick="location.reload()">Try Again</button>
+            <h2>Performance Report</h2>
+            <div class="detailed-stats">
+                <p>Normalized Score (CPM): <strong id="final-score">0</strong></p>
+                <p>Accuracy: <span id="accuracy">0</span>%</p>
+                <p>Avg. Speed: <span id="avg-speed">0</span></p>
+            </div>
+            <h3>Local Leaderboard</h3>
+            <ul id="leaderboard-list"></ul>
+            <button onclick="location.reload()">Reset Test</button>
         </div>
     </div>
     <script src="script.js"></script>
