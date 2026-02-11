@@ -1,7 +1,10 @@
 document.addEventListener('DOMContentLoaded', () => {
-    const startBtn = document.getElementById('start-btn');
-    
-    // Game State
+    // 1. SELECT ELEMENTS WITH FALLBACKS
+    const getEl = (id, tag) => document.getElementById(id) || document.querySelector(tag);
+
+    const startBtn = getEl('start-btn', 'button');
+    const container = getEl('app-container', '.app-container');
+
     let correctCount = 0;
     let totalAttempts = 0;
     let testSize = 15;
@@ -9,92 +12,85 @@ document.addEventListener('DOMContentLoaded', () => {
     let isLocked = false;
 
     if (startBtn) {
-        startBtn.addEventListener('click', () => {
-            // Re-select elements to ensure they exist
-            const testSizeSelect = document.getElementById('test-size');
-            const setupArea = document.getElementById('setup-area');
-            const gameArea = document.getElementById('game-area');
-            const totalCountEl = document.getElementById('total-count');
-            const inputField = document.getElementById('user-input');
+        startBtn.onclick = () => {
+            // Find elements inside the click to ensure they exist
+            const testSizeSelect = getEl('test-size', 'select');
+            const setupArea = getEl('setup-area', '#setup-area');
+            const gameArea = getEl('game-area', '#game-area');
+            const totalCountEl = getEl('total-count', '#total-count');
+            const inputField = getEl('user-input', 'input');
 
-            // 1. Set the test size
-            if (testSizeSelect) {
-                testSize = parseInt(testSizeSelect.value);
-            }
-            if (totalCountEl) {
-                totalCountEl.innerText = testSize;
-            }
+            // Set test size (safely)
+            testSize = testSizeSelect ? parseInt(testSizeSelect.value) : 15;
+            if (totalCountEl) totalCountEl.innerText = testSize;
 
-            // 2. Switch Screens
+            // Toggle screens
             if (setupArea) setupArea.style.display = 'none';
             if (gameArea) gameArea.style.display = 'block';
 
-            // 3. Prep Input
+            // Focus input
             if (inputField) {
                 inputField.disabled = false;
                 inputField.value = '';
-                setTimeout(() => inputField.focus(), 10);
+                setTimeout(() => inputField.focus(), 50);
             }
 
-            // 4. Start Game
             startTime = Date.now();
             startTimer();
             nextRound();
-        });
+        };
     }
 
     function nextRound() {
-        const inputField = document.getElementById('user-input');
-        const targetDisplay = document.getElementById('target-number');
+        const inputField = getEl('user-input', 'input');
+        const targetDisplay = getEl('target-number', '#target-number');
+        const progressEl = getEl('progress', '#progress');
 
         if (correctCount >= testSize) {
             endGame();
             return;
         }
 
+        if (progressEl) progressEl.innerText = correctCount;
         if (inputField) {
             inputField.value = '';
             inputField.disabled = false;
             inputField.focus();
         }
-
         if (targetDisplay) {
             targetDisplay.innerText = Math.floor(10000 + Math.random() * 90000).toString();
         }
         isLocked = false;
     }
 
-    // Handle Typing
-    const inputField = document.getElementById('user-input');
-    if (inputField) {
-        inputField.addEventListener('input', (e) => {
-            if (isLocked) return;
+    // Handle Input
+    document.addEventListener('input', (e) => {
+        if (e.target.id !== 'user-input' && e.target.tagName !== 'INPUT') return;
+        if (isLocked) return;
 
-            const val = e.target.value;
-            const target = document.getElementById('target-number').innerText;
-            const container = document.getElementById('app-container');
+        const val = e.target.value;
+        const targetDisplay = getEl('target-number', '#target-number');
+        const target = targetDisplay ? targetDisplay.innerText : "";
 
-            if (val === target) {
-                correctCount++;
-                totalAttempts++;
-                document.getElementById('progress').innerText = correctCount;
+        if (val === target) {
+            correctCount++;
+            totalAttempts++;
+            nextRound();
+        } else if (target && !target.startsWith(val) && val.length > 0) {
+            isLocked = true;
+            totalAttempts++;
+            e.target.disabled = true;
+            if (container) container.style.borderColor = "#f85149";
+            
+            setTimeout(() => {
+                if (container) container.style.borderColor = "#30363d";
                 nextRound();
-            } else if (!target.startsWith(val) && val.length > 0) {
-                isLocked = true;
-                totalAttempts++;
-                e.target.disabled = true;
-                if (container) container.style.borderColor = "#f85149";
-                
-                setTimeout(() => {
-                    if (container) container.style.borderColor = "#30363d";
-                    nextRound();
-                }, 500);
-            }
-        });
-    }
+            }, 500);
+        }
+    });
 
     function startTimer() {
-        const timerEl = document.getElementById('timer');
+        const timerEl = getEl('timer', '#timer');
         timerInterval = setInterval(() => {
             const elapsed = ((Date.now() - startTime) / 1000).toFixed(1);
             if (timerEl) timerEl.innerText = elapsed;
