@@ -1,12 +1,15 @@
 window.onload = function() {
-    // 1. FORCED SELECTORS: No IDs used here to prevent the "null" crash
-    const startBtn = document.querySelector('button'); 
-    const inputField = document.querySelector('input');
-    const selectMenu = document.querySelector('select');
-    
-    // Fallback for the target number display
-    const targetDisplay = document.getElementById('target-number') || document.querySelector('div[style*="font-size"]');
-    const appFrame = document.querySelector('.app-container') || document.querySelector('.app-frame') || document.body;
+    // 1. SELECTORS BY TAG TYPE (Avoids the 'null' ID error entirely)
+    const btn = document.querySelector('button');
+    const input = document.querySelector('input');
+    const select = document.querySelector('select');
+    const app = document.querySelector('.app-container') || document.querySelector('.app-frame') || document.body;
+
+    // We find the display areas by looking for divs that aren't hidden
+    const divs = document.querySelectorAll('div');
+    let targetDisplay = document.getElementById('target-number');
+    let setupArea = document.getElementById('setup-area');
+    let gameArea = document.getElementById('game-area');
 
     let correctCount = 0;
     let totalAttempts = 0;
@@ -15,30 +18,27 @@ window.onload = function() {
     let keyStrokeTimes = [];
     let isLocked = false;
 
-    if (!startBtn) {
-        alert("CRITICAL ERROR: No button found on page.");
-        return;
-    }
+    if (!btn) return;
 
-    // 2. THE START LOGIC
-    startBtn.onclick = function() {
-        // Read test size safely from whatever dropdown exists
-        testSize = selectMenu ? parseInt(selectMenu.value) : 15;
+    // 2. THE START COMMAND
+    btn.onclick = function() {
+        // Read the value from the FIRST dropdown found on the page
+        testSize = select ? parseInt(select.value) : 15;
         
-        // Find areas to hide/show by looking for common patterns
-        const setup = document.getElementById('setup-area') || document.querySelector('div:first-of-type');
-        const game = document.getElementById('game-area') || document.querySelector('.hidden') || document.querySelectorAll('div')[2];
-        
-        if (setup) setup.style.display = 'none';
-        if (game) {
-            game.style.display = 'block';
-            game.classList.remove('hidden');
+        // Hide/Show logic using whatever IDs exist
+        if (setupArea) setupArea.style.display = 'none';
+        if (gameArea) {
+            gameArea.style.display = 'block';
+            gameArea.classList.remove('hidden');
         }
 
-        if (inputField) {
-            inputField.disabled = false;
-            inputField.value = '';
-            inputField.focus();
+        const totalDisplay = document.getElementById('total-count');
+        if (totalDisplay) totalDisplay.innerText = testSize;
+
+        if (input) {
+            input.disabled = false;
+            input.value = '';
+            input.focus();
         }
         
         startTime = Date.now();
@@ -48,13 +48,12 @@ window.onload = function() {
 
     function nextRound() {
         if (correctCount >= testSize) { endGame(); return; }
-        if (inputField) { 
-            inputField.value = ''; 
-            inputField.disabled = false; 
-            inputField.focus(); 
+        if (input) { 
+            input.value = ''; 
+            input.disabled = false; 
+            input.focus(); 
         }
         if (targetDisplay) {
-            // Generates 3-6 digits automatically
             const len = Math.random() < 0.7 ? (Math.floor(Math.random() * 2) + 4) : (Math.random() < 0.5 ? 3 : 6);
             let num = '';
             for(let i=0; i<len; i++) num += Math.floor(Math.random() * 10);
@@ -64,11 +63,11 @@ window.onload = function() {
         isLocked = false;
     }
 
-    // 3. INPUT DETECTION
-    if (inputField) {
-        inputField.oninput = function() {
+    // 3. TYPING LOGIC
+    if (input) {
+        input.oninput = function() {
             if (isLocked) return;
-            const val = inputField.value;
+            const val = input.value;
             const target = targetDisplay ? targetDisplay.innerText : "";
 
             if (val === target) {
@@ -82,11 +81,11 @@ window.onload = function() {
                 // ERROR PENALTY
                 isLocked = true;
                 totalAttempts++;
-                inputField.disabled = true;
-                if (appFrame) appFrame.style.borderColor = "red";
+                input.disabled = true;
+                if (app) app.style.borderColor = "#f85149";
                 
                 setTimeout(() => {
-                    if (appFrame) appFrame.style.borderColor = "";
+                    if (app) app.style.borderColor = "";
                     nextRound();
                 }, 500);
             }
