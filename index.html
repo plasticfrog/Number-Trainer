@@ -8,7 +8,8 @@
 </head>
 <body>
     <div class="app-container" id="app-container">
-        <!-- SETUP SCREEN -->
+        
+        <!-- VIEW 1: SETUP -->
         <div id="setup-area">
             <h1 class="brand">NP.PRO <span class="sub">TRAINER</span></h1>
             <div class="control-wrapper">
@@ -22,17 +23,17 @@
             <button id="start-btn">INITIALIZE SPRINT</button>
         </div>
 
-        <!-- GAME SCREEN -->
+        <!-- VIEW 2: GAME (Hidden by default) -->
         <div id="game-area" class="hidden">
             <div class="hud">
                 <div>TIME: <span id="timer">0.0</span>s</div>
                 <div>PROGRESS: <span id="progress">0</span>/<span id="total-count">0</span></div>
             </div>
             <div id="target-number">----</div>
-            <input type="text" id="user-input" autocomplete="off" spellcheck="false" placeholder="TYPE..." disabled>
+            <input type="text" id="user-input" autocomplete="off" spellcheck="false" placeholder="READY..." disabled>
         </div>
 
-        <!-- RESULTS SCREEN -->
+        <!-- VIEW 3: RESULTS (Hidden by default) -->
         <div id="results-area" class="hidden">
             <h2 class="results-title">SESSION REPORT</h2>
             <div class="metrics">
@@ -40,11 +41,14 @@
                 <div class="metric-row"><span>ACCURACY</span> <strong id="final-accuracy">0</strong>%</div>
             </div>
             
-            <label>LOCAL LEADERBOARD (TOP 5)</label>
-            <ul id="leaderboard-list"></ul>
+            <div class="leaderboard-section">
+                <label>LOCAL LEADERBOARD (TOP 5)</label>
+                <ul id="leaderboard-list"></ul>
+            </div>
             
             <button onclick="location.reload()" class="btn-reset">RE-INITIALIZE</button>
         </div>
+
     </div>
     <script src="script.js"></script>
 </body>
