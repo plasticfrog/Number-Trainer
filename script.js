@@ -1,19 +1,13 @@
 window.onload = function() {
-    // 1. Grab elements by the EXACT IDs from your HTML
-    const startBtn = document.getElementById('start-btn');
-    const testSizeSelect = document.getElementById('test-size');
-    const inputField = document.getElementById('user-input');
+    // 1. DYNAMIC SELECTORS: If ID fails, find by Tag Name
+    const startBtn = document.getElementById('start-btn') || document.querySelector('button');
+    const testSizeSelect = document.getElementById('test-size') || document.querySelector('select');
+    const inputField = document.getElementById('user-input') || document.querySelector('input');
     
-    // UI Containers
+    // UI Elements
     const setupArea = document.getElementById('setup-area');
     const gameArea = document.getElementById('game-area');
     const targetDisplay = document.getElementById('target-number');
-
-    // 2. CRITICAL: Stop the script if the core elements are missing
-    if (!startBtn || !testSizeSelect) {
-        console.error("Missing Elements: Check if your HTML IDs match 'start-btn' and 'test-size'");
-        return;
-    }
 
     let correctCount = 0;
     let totalAttempts = 0;
@@ -21,45 +15,36 @@ window.onload = function() {
     let timerInterval, startTime, roundStartTime;
     let isLocked = false;
 
-    // 3. START SPRINT LOGIC
-    startBtn.onclick = function() {
-        // Read the dropdown value
-        testSize = parseInt(testSizeSelect.value);
-        
-        // Update Total Count display if it exists
-        const totalDisplay = document.getElementById('total-count');
-        if (totalDisplay) totalDisplay.innerText = testSize;
+    // 2. THE START TRIGGER
+    if (startBtn) {
+        startBtn.onclick = function() {
+            // Read value safely - fallback to 15 if somehow still null
+            testSize = (testSizeSelect && testSizeSelect.value) ? parseInt(testSizeSelect.value) : 15;
+            
+            // UI Toggle
+            if (setupArea) setupArea.style.display = 'none';
+            if (gameArea) {
+                gameArea.style.display = 'block';
+                gameArea.classList.remove('hidden');
+            }
 
-        // Toggle Screens
-        if (setupArea) setupArea.style.display = 'none';
-        if (gameArea) {
-            gameArea.style.display = 'block';
-            gameArea.classList.remove('hidden');
-        }
-
-        // Prepare Input
-        if (inputField) {
-            inputField.disabled = false;
-            inputField.value = '';
-            inputField.focus();
-        }
-        
-        startTime = Date.now();
-        startTimer();
-        nextRound();
-    };
+            if (inputField) {
+                inputField.disabled = false;
+                inputField.value = '';
+                inputField.focus();
+            }
+            
+            startTime = Date.now();
+            startTimer();
+            nextRound();
+        };
+    }
 
     function nextRound() {
-        if (correctCount >= testSize) {
-            endGame();
-            return;
-        }
-        if (inputField) {
-            inputField.value = '';
-            inputField.disabled = false;
-            inputField.focus();
-        }
-        // Random 5-digit number for the trainer
+        if (correctCount >= testSize) { endGame(); return; }
+        if (inputField) { inputField.value = ''; inputField.disabled = false; inputField.focus(); }
+        
+        // Generate a 5-digit number
         if (targetDisplay) targetDisplay.innerText = Math.floor(10000 + Math.random() * 90000).toString();
         
         roundStartTime = Date.now();
@@ -79,7 +64,7 @@ window.onload = function() {
                 if (prog) prog.innerText = correctCount;
                 nextRound();
             } else if (!target.startsWith(val)) {
-                // Mistake Penalty
+                // RED FLASH ERROR
                 isLocked = true;
                 totalAttempts++;
                 inputField.disabled = true;
@@ -106,8 +91,6 @@ window.onload = function() {
         clearInterval(timerInterval);
         const finalTime = ((Date.now() - startTime) / 1000).toFixed(1);
         const accuracy = Math.round((correctCount / (totalAttempts || 1)) * 100);
-        
-        // Show result and reload
         alert(`SPRINT COMPLETE\nTime: ${finalTime}s\nAccuracy: ${accuracy}%`);
         location.reload();
     }
