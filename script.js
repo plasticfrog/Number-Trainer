@@ -1,44 +1,40 @@
 window.onload = function() {
-    // 1. SELECTORS BY TAG TYPE (Avoids the 'null' ID error entirely)
-    const btn = document.querySelector('button');
-    const input = document.querySelector('input');
-    const select = document.querySelector('select');
-    const app = document.querySelector('.app-container') || document.querySelector('.app-frame') || document.body;
-
-    // We find the display areas by looking for divs that aren't hidden
-    const divs = document.querySelectorAll('div');
-    let targetDisplay = document.getElementById('target-number');
-    let setupArea = document.getElementById('setup-area');
-    let gameArea = document.getElementById('game-area');
+    // 1. SELECT BY TAG (Bypasses ID-related 'null' errors)
+    const startBtn = document.querySelector('button');
+    const inputField = document.querySelector('input');
+    const testSelect = document.querySelector('select');
+    
+    // Displays
+    const targetDisplay = document.getElementById('target-number') || document.querySelector('div[id*="target"]');
+    const container = document.getElementById('app-container') || document.body.firstElementChild;
 
     let correctCount = 0;
     let totalAttempts = 0;
     let testSize = 15;
     let timerInterval, startTime, roundStartTime;
-    let keyStrokeTimes = [];
     let isLocked = false;
 
-    if (!btn) return;
+    if (!startBtn) return;
 
-    // 2. THE START COMMAND
-    btn.onclick = function() {
-        // Read the value from the FIRST dropdown found on the page
-        testSize = select ? parseInt(select.value) : 15;
+    // 2. START TRIGGER
+    startBtn.onclick = function() {
+        // Read test size from the dropdown found
+        testSize = testSelect ? parseInt(testSelect.value) : 15;
         
-        // Hide/Show logic using whatever IDs exist
-        if (setupArea) setupArea.style.display = 'none';
-        if (gameArea) {
-            gameArea.style.display = 'block';
-            gameArea.classList.remove('hidden');
+        // Manual Toggle of Areas
+        const setup = document.getElementById('setup-area') || document.querySelector('div[id*="setup"]');
+        const game = document.getElementById('game-area') || document.querySelector('div[id*="game"]');
+        
+        if (setup) setup.style.display = 'none';
+        if (game) {
+            game.style.display = 'block';
+            game.classList.remove('hidden');
         }
 
-        const totalDisplay = document.getElementById('total-count');
-        if (totalDisplay) totalDisplay.innerText = testSize;
-
-        if (input) {
-            input.disabled = false;
-            input.value = '';
-            input.focus();
+        if (inputField) {
+            inputField.disabled = false;
+            inputField.value = '';
+            inputField.focus();
         }
         
         startTime = Date.now();
@@ -48,44 +44,37 @@ window.onload = function() {
 
     function nextRound() {
         if (correctCount >= testSize) { endGame(); return; }
-        if (input) { 
-            input.value = ''; 
-            input.disabled = false; 
-            input.focus(); 
-        }
+        if (inputField) { inputField.value = ''; inputField.disabled = false; inputField.focus(); }
         if (targetDisplay) {
-            const len = Math.random() < 0.7 ? (Math.floor(Math.random() * 2) + 4) : (Math.random() < 0.5 ? 3 : 6);
-            let num = '';
-            for(let i=0; i<len; i++) num += Math.floor(Math.random() * 10);
-            targetDisplay.innerText = num;
+            // Internal number generator
+            targetDisplay.innerText = Math.floor(Math.random() * 90000 + 10000).toString();
         }
         roundStartTime = Date.now();
         isLocked = false;
     }
 
-    // 3. TYPING LOGIC
-    if (input) {
-        input.oninput = function() {
+    // 3. TYPING & ERROR LOGIC
+    if (inputField) {
+        inputField.oninput = function() {
             if (isLocked) return;
-            const val = input.value;
+            const val = inputField.value;
             const target = targetDisplay ? targetDisplay.innerText : "";
 
             if (val === target) {
-                keyStrokeTimes.push(Date.now() - roundStartTime);
                 correctCount++;
                 totalAttempts++;
                 const prog = document.getElementById('progress');
                 if (prog) prog.innerText = correctCount;
                 nextRound();
             } else if (!target.startsWith(val)) {
-                // ERROR PENALTY
+                // RED FLASH ERROR
                 isLocked = true;
                 totalAttempts++;
-                input.disabled = true;
-                if (app) app.style.borderColor = "#f85149";
+                inputField.disabled = true;
+                if (container) container.style.borderColor = "red";
                 
                 setTimeout(() => {
-                    if (app) app.style.borderColor = "";
+                    if (container) container.style.borderColor = "";
                     nextRound();
                 }, 500);
             }
@@ -103,8 +92,7 @@ window.onload = function() {
     function endGame() {
         clearInterval(timerInterval);
         const finalTime = ((Date.now() - startTime) / 1000).toFixed(1);
-        const acc = Math.round((correctCount / (totalAttempts || 1)) * 100);
-        alert(`SPRINT COMPLETE\nTime: ${finalTime}s\nAccuracy: ${acc}%`);
+        alert(`COMPLETE\nTime: ${finalTime}s\nAccuracy: ${Math.round((correctCount/totalAttempts)*100)}%`);
         location.reload();
     }
 };
