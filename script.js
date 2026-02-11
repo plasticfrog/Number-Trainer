@@ -1,20 +1,18 @@
 document.addEventListener('DOMContentLoaded', () => {
-    let score = 0;
-    let totalChars = 0;
+    let correctCount = 0;
     let totalAttempts = 0;
-    let timeLeft = 0;
-    let selectedTime = 30;
+    let testSize = 15;
     let timerInterval;
+    let timeElapsed = 0;
     let startTime;
+    let roundStartTime;
     let keyStrokeTimes = [];
+    let isLocked = false;
 
     const inputField = document.getElementById('user-input');
     const targetDisplay = document.getElementById('target-number');
-    const startBtn = document.getElementById('start-btn');
-    const setupArea = document.getElementById('setup-area');
-    const gameArea = document.getElementById('game-area');
-    const timerDisplay = document.getElementById('timer');
-    const scoreDisplay = document.getElementById('score-display');
+    const container = document.getElementById('main-container');
+    const progress = document.getElementById('progress');
 
     function generateNumber() {
         const rand = Math.random();
@@ -24,79 +22,102 @@ document.addEventListener('DOMContentLoaded', () => {
         return num;
     }
 
-    startBtn.addEventListener('click', () => {
-        selectedTime = parseInt(document.getElementById('time-select').value);
-        timeLeft = selectedTime;
-        
-        setupArea.classList.add('hidden');
-        gameArea.classList.remove('hidden');
+    document.getElementById('start-btn').addEventListener('click', () => {
+        testSize = parseInt(document.getElementById('test-size').value);
+        document.getElementById('total-count').innerText = testSize;
+        document.getElementById('setup-area').classList.add('hidden');
+        document.getElementById('game-area').classList.remove('hidden');
         
         inputField.disabled = false;
-        inputField.value = '';
         inputField.focus();
         
-        nextRound();
+        startTime = Date.now();
         startTimer();
+        nextRound();
     });
 
     function nextRound() {
+        if (correctCount >= testSize) {
+            endGame();
+            return;
+        }
         inputField.value = '';
         targetDisplay.innerText = generateNumber();
-        startTime = Date.now();
+        roundStartTime = Date.now();
+        isLocked = false;
+        inputField.disabled = false;
+        inputField.focus();
     }
 
-    inputField.addEventListener('input', () => {
-        inputField.value = inputField.value.replace(/[^0-9]/g, '');
-        if (inputField.value === targetDisplay.innerText) {
-            let timeTaken = Date.now() - startTime;
-            keyStrokeTimes.push(timeTaken);
-            score++;
-            totalChars += targetDisplay.innerText.length;
-            totalAttempts++;
-            scoreDisplay.innerText = score;
-            nextRound();
+    inputField.addEventListener('input', (e) => {
+        if (isLocked) return;
+
+        const val = inputField.value;
+        const target = targetDisplay.innerText;
+
+        // Check if the current typing matches the START of the target
+        if (target.startsWith(val)) {
+            if (val === target) {
+                // Success
+                let timeTaken = Date.now() - roundStartTime;
+                keyStrokeTimes.push(timeTaken);
+                correctCount++;
+                totalAttempts++;
+                progress.innerText = correctCount;
+                nextRound();
+            }
+        } else {
+            // MISTAKE LOGIC
+            triggerError();
         }
     });
 
+    function triggerError() {
+        isLocked = true;
+        totalAttempts++; // Count the mistake against accuracy
+        inputField.disabled = true;
+        container.style.backgroundColor = "#7f1d1d"; // Dark Red
+        
+        setTimeout(() => {
+            container.style.backgroundColor = "#1e293b"; // Back to Normal
+            nextRound();
+        }, 500);
+    }
+
     function startTimer() {
-        timerDisplay.innerText = timeLeft;
         timerInterval = setInterval(() => {
-            timeLeft--;
-            timerDisplay.innerText = timeLeft;
-            if (timeLeft <= 0) endGame();
-        }, 1000);
+            timeElapsed = ((Date.now() - startTime) / 1000).toFixed(1);
+            document.getElementById('timer').innerText = timeElapsed;
+        }, 100);
     }
 
     function endGame() {
         clearInterval(timerInterval);
         inputField.disabled = true;
-        gameArea.classList.add('hidden');
+        document.getElementById('game-area').classList.add('hidden');
         document.getElementById('results').classList.remove('hidden');
 
-        const cpm = Math.round((totalChars / selectedTime) * 60);
-        const accuracy = Math.round((score / (totalAttempts || 1)) * 100);
-        const avgLatency = keyStrokeTimes.length > 0 
-            ? (keyStrokeTimes.reduce((a, b) => a + b) / keyStrokeTimes.length / 1000).toFixed(2) 
-            : 0;
+        const accuracy = Math.round((correctCount / totalAttempts) * 100);
+        const avgLatency = (keyStrokeTimes.reduce((a, b) => a + b, 0) / keyStrokeTimes.length / 1000).toFixed(2);
 
-        document.getElementById('final-score').innerText = cpm;
+        document.getElementById('final-time').innerText = timeElapsed;
         document.getElementById('accuracy').innerText = accuracy;
         document.getElementById('avg-speed').innerText = avgLatency + "s";
 
-        saveScore(cpm);
+        saveScore(timeElapsed, testSize);
         displayLeaderboard();
     }
 
-    function saveScore(newCpm) {
-        let history = JSON.parse(localStorage.getItem('numpadScores')) || [];
-        history.push({ score: newCpm, date: new Date().toLocaleDateString() });
-        history.sort((a, b) => b.score - a.score);
-        localStorage.setItem('numpadScores', JSON.stringify(history.slice(0, 5)));
+    function saveScore(time, size) {
+        let history = JSON.parse(localStorage.getItem('numpadSprints')) || [];
+        history.push({ time, size, date: new Date().toLocaleDateString() });
+        history.sort((a, b) => a.time - b.time); // Best time at top
+        localStorage.setItem('numpadSprints', JSON.stringify(history.slice(0, 5)));
     }
 
     function displayLeaderboard() {
         const list = document.getElementById('leaderboard-list');
-        const history = JSON.parse(localStorage.getItem('numpadScores')) || [];
-        list.innerHTML = history.map(s => `<li><span>${s.date}</span> <strong>${s.score} CPM</strong></li>`).join('');
+        const history = JSON.parse(localStorage.getItem('numpadSprints')) || [];
+        list.innerHTML = history.map(s => `<li><span>${s.size} Q's: ${s.time}s</span> <strong>${s.date}</strong></li>`).join('');
     }
 });
