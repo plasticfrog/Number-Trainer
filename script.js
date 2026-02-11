@@ -1,4 +1,5 @@
-window.onload = function() {
+// Function to start the whole app
+function init() {
     let correctCount = 0;
     let totalAttempts = 0;
     let testSize = 15;
@@ -13,7 +14,9 @@ window.onload = function() {
     const targetDisplay = document.getElementById('target-number');
     const appContainer = document.getElementById('app-container');
 
-    startBtn.addEventListener('click', function() {
+    if (!startBtn) return; // Guard clause
+
+    startBtn.onclick = () => {
         testSize = parseInt(document.getElementById('test-size').value);
         document.getElementById('total-count').innerText = testSize;
         document.getElementById('setup-area').classList.add('hidden');
@@ -25,7 +28,7 @@ window.onload = function() {
         startTime = Date.now();
         startTimer();
         nextRound();
-    });
+    };
 
     function nextRound() {
         if (correctCount >= testSize) {
@@ -48,7 +51,7 @@ window.onload = function() {
         return num;
     }
 
-    inputField.addEventListener('input', () => {
+    inputField.oninput = () => {
         if (isLocked) return;
         const val = inputField.value;
         const target = targetDisplay.innerText;
@@ -64,7 +67,7 @@ window.onload = function() {
         } else {
             triggerError();
         }
-    });
+    };
 
     function triggerError() {
         isLocked = true;
@@ -93,10 +96,13 @@ window.onload = function() {
         document.getElementById('results').classList.remove('hidden');
 
         const accuracy = Math.round((correctCount / totalAttempts) * 100);
-        const avgLatency = (keyStrokeTimes.reduce((a, b) => a + b, 0) / keyStrokeTimes.length / 1000).toFixed(2);
+        const avgLatency = (keyStrokeTimes.reduce((a, b) => a + b, 0) / (keyStrokeTimes.length || 1) / 1000).toFixed(2);
 
         document.getElementById('final-time').innerText = finalTime;
         document.getElementById('accuracy').innerText = accuracy;
         document.getElementById('avg-speed').innerText = avgLatency + "s";
     }
-};
+}
+
+// Run the initialization
+init();
