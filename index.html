@@ -3,43 +3,48 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Number Pad Pro</title>
+    <title>NP-TRAIN // PRO</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <div class="container" id="main-container">
-        <h1>Number Pad Pro</h1>
+    <div class="app-frame" id="app-frame">
+        <header>
+            <h1>NP-TRAINER <span class="version">v2.0</span></h1>
+        </header>
         
         <div id="setup-area">
-            <label for="test-size">Test Length:</label>
-            <select id="test-size">
-                <option value="15">15 Numbers</option>
-                <option value="25">25 Numbers</option>
-                <option value="40">40 Numbers</option>
-            </select>
-            <br><br>
-            <button id="start-btn">Start Sprint</button>
+            <div class="control-group">
+                <label>SPRINT LENGTH</label>
+                <select id="test-size">
+                    <option value="15">15 ROUNDS</option>
+                    <option value="25">25 ROUNDS</option>
+                    <option value="40">40 ROUNDS</option>
+                </select>
+            </div>
+            <button id="start-btn" class="btn-primary">START SPRINT</button>
         </div>
 
         <div id="game-area" class="hidden">
-            <div id="stats">
-                <span>Time: <span id="timer">0.0</span>s</span>
-                <span>Progress: <span id="progress">0</span>/<span id="total-count">0</span></span>
+            <div class="dashboard">
+                <div class="stat-box">TIME <span id="timer">0.0</span></div>
+                <div class="stat-box">COUNT <span id="progress">0</span>/<span id="total-count">0</span></div>
             </div>
             <div id="target-number">----</div>
-            <input type="text" id="user-input" autocomplete="off" placeholder="Type..." disabled>
+            <input type="text" id="user-input" autocomplete="off" spellcheck="false" placeholder="READY..." disabled>
         </div>
 
         <div id="results" class="hidden">
-            <h2>Performance Report</h2>
-            <div class="detailed-stats">
-                <p>Total Time: <strong id="final-time">0</strong>s</p>
-                <p>Accuracy: <span id="accuracy">0</span>%</p>
-                <p>Avg. Speed: <span id="avg-speed">0</span>s per set</p>
+            <div class="report-card">
+                <h2>SESSION REPORT</h2>
+                <div class="data-grid">
+                    <div class="data-item"><span>TOTAL TIME</span> <strong id="final-time">0</strong>s</div>
+                    <div class="data-item"><span>ACCURACY</span> <strong id="accuracy">0</strong>%</div>
+                    <div class="data-item"><span>LATENCY</span> <strong id="avg-speed">0</strong>s</div>
+                </div>
+                <h3>RECENT TOP SPRINT TIMES</h3>
+                <ul id="leaderboard-list"></ul>
+                <button onclick="location.reload()" class="btn-secondary">RESET MODULE</button>
             </div>
-            <h3>Local Leaderboard</h3>
-            <ul id="leaderboard-list"></ul>
-            <button onclick="location.reload()">Reset Test</button>
         </div>
     </div>
     <script src="script.js"></script>
