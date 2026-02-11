@@ -1,34 +1,33 @@
 window.onload = function() {
-    // 1. SELECT BY TAG (Bypasses ID-related 'null' errors)
-    const startBtn = document.querySelector('button');
+    // 1. Bulletproof Selectors (No IDs used to prevent "null" errors)
+    const startBtn = document.querySelector('button'); 
+    const testSizeSelect = document.querySelector('select');
     const inputField = document.querySelector('input');
-    const testSelect = document.querySelector('select');
     
-    // Displays
+    // UI Elements
+    const setupArea = document.getElementById('setup-area');
+    const gameArea = document.getElementById('game-area');
     const targetDisplay = document.getElementById('target-number') || document.querySelector('div[id*="target"]');
-    const container = document.getElementById('app-container') || document.body.firstElementChild;
 
     let correctCount = 0;
     let totalAttempts = 0;
     let testSize = 15;
     let timerInterval, startTime, roundStartTime;
+    let keyStrokeTimes = [];
     let isLocked = false;
 
     if (!startBtn) return;
 
-    // 2. START TRIGGER
+    // 2. The Start Trigger
     startBtn.onclick = function() {
-        // Read test size from the dropdown found
-        testSize = testSelect ? parseInt(testSelect.value) : 15;
+        // Read test size from whatever dropdown exists
+        testSize = testSizeSelect ? parseInt(testSizeSelect.value) : 15;
         
-        // Manual Toggle of Areas
-        const setup = document.getElementById('setup-area') || document.querySelector('div[id*="setup"]');
-        const game = document.getElementById('game-area') || document.querySelector('div[id*="game"]');
-        
-        if (setup) setup.style.display = 'none';
-        if (game) {
-            game.style.display = 'block';
-            game.classList.remove('hidden');
+        // Hide setup, show game
+        if (setupArea) setupArea.style.display = 'none';
+        if (gameArea) {
+            gameArea.style.display = 'block';
+            gameArea.classList.remove('hidden');
         }
 
         if (inputField) {
@@ -44,16 +43,17 @@ window.onload = function() {
 
     function nextRound() {
         if (correctCount >= testSize) { endGame(); return; }
-        if (inputField) { inputField.value = ''; inputField.disabled = false; inputField.focus(); }
-        if (targetDisplay) {
-            // Internal number generator
-            targetDisplay.innerText = Math.floor(Math.random() * 90000 + 10000).toString();
+        if (inputField) { 
+            inputField.value = ''; 
+            inputField.disabled = false; 
+            inputField.focus(); 
         }
+        // Generate a random 5-digit number
+        if (targetDisplay) targetDisplay.innerText = Math.floor(10000 + Math.random() * 90000).toString();
         roundStartTime = Date.now();
         isLocked = false;
     }
 
-    // 3. TYPING & ERROR LOGIC
     if (inputField) {
         inputField.oninput = function() {
             if (isLocked) return;
@@ -61,20 +61,22 @@ window.onload = function() {
             const target = targetDisplay ? targetDisplay.innerText : "";
 
             if (val === target) {
+                keyStrokeTimes.push(Date.now() - roundStartTime);
                 correctCount++;
                 totalAttempts++;
                 const prog = document.getElementById('progress');
                 if (prog) prog.innerText = correctCount;
                 nextRound();
             } else if (!target.startsWith(val)) {
-                // RED FLASH ERROR
+                // Mistake Logic: Flash red border and delay
                 isLocked = true;
                 totalAttempts++;
                 inputField.disabled = true;
-                if (container) container.style.borderColor = "red";
+                const container = document.getElementById('app-container');
+                if (container) container.style.borderColor = "#f85149";
                 
                 setTimeout(() => {
-                    if (container) container.style.borderColor = "";
+                    if (container) container.style.borderColor = "#30363d";
                     nextRound();
                 }, 500);
             }
@@ -92,7 +94,7 @@ window.onload = function() {
     function endGame() {
         clearInterval(timerInterval);
         const finalTime = ((Date.now() - startTime) / 1000).toFixed(1);
-        alert(`COMPLETE\nTime: ${finalTime}s\nAccuracy: ${Math.round((correctCount/totalAttempts)*100)}%`);
+        alert(`SPRINT COMPLETE\nTime: ${finalTime}s\nAccuracy: ${Math.round((correctCount/totalAttempts)*100)}%`);
         location.reload();
     }
 };
