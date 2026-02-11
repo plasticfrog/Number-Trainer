@@ -1,4 +1,5 @@
 window.onload = function() {
+    // 1. Core Variables
     let correctCount = 0;
     let totalAttempts = 0;
     let testSize = 15;
@@ -8,46 +9,44 @@ window.onload = function() {
     let keyStrokeTimes = [];
     let isLocked = false;
 
-    // Fixed IDs to match your current HTML structure exactly
-    const startBtn = document.getElementById('start-btn');
-    const inputField = document.getElementById('user-input');
+    // 2. Element Selectors (Searching for both possible ID names to prevent 'null' errors)
+    const startBtn = document.getElementById('start-btn') || document.querySelector('button');
+    const inputField = document.getElementById('user-input') || document.querySelector('input[type="text"]');
     const targetDisplay = document.getElementById('target-number');
-    const appContainer = document.getElementById('app-container');
-    const testSizeSelect = document.getElementById('test-size') || document.getElementById('test-length');
+    const appContainer = document.getElementById('app-container') || document.getElementById('app-frame');
+    const testSizeSelect = document.getElementById('test-size') || document.getElementById('test-length') || document.querySelector('select');
 
-    if (!startBtn) {
-        console.error("Start button not found!");
-        return;
+    // 3. The Start Function
+    if (startBtn) {
+        startBtn.onclick = function() {
+            // Safely get the test size
+            if (testSizeSelect) {
+                testSize = parseInt(testSizeSelect.value) || 15;
+            }
+
+            // Update UI elements if they exist
+            const totalDisplay = document.getElementById('total-count');
+            if (totalDisplay) totalDisplay.innerText = testSize;
+
+            const setupArea = document.getElementById('setup-area');
+            const gameArea = document.getElementById('game-area');
+            
+            if (setupArea) setupArea.classList.add('hidden');
+            if (gameArea) gameArea.classList.remove('hidden');
+            
+            if (inputField) {
+                inputField.disabled = false;
+                inputField.value = '';
+                inputField.focus();
+            }
+            
+            startTime = Date.now();
+            startTimer();
+            nextRound();
+        };
     }
 
-    startBtn.onclick = function() {
-        // Use the select element found above
-        if (testSizeSelect) {
-            testSize = parseInt(testSizeSelect.value);
-        } else {
-            testSize = 15; // Default fallback
-        }
-
-        const totalDisplay = document.getElementById('total-count');
-        if (totalDisplay) totalDisplay.innerText = testSize;
-
-        const setupArea = document.getElementById('setup-area');
-        const gameArea = document.getElementById('game-area');
-        
-        if (setupArea) setupArea.classList.add('hidden');
-        if (gameArea) gameArea.classList.remove('hidden');
-        
-        if (inputField) {
-            inputField.disabled = false;
-            inputField.value = '';
-            inputField.focus();
-        }
-        
-        startTime = Date.now();
-        startTimer();
-        nextRound();
-    };
-
+    // 4. Game Logic
     function nextRound() {
         if (correctCount >= testSize) {
             endGame();
@@ -122,7 +121,7 @@ window.onload = function() {
         if (gameArea) gameArea.classList.add('hidden');
         if (resultsArea) resultsArea.classList.remove('hidden');
 
-        const accuracy = Math.round((correctCount / totalAttempts) * 100);
+        const accuracy = Math.round((correctCount / (totalAttempts || 1)) * 100);
         const avgLatency = (keyStrokeTimes.reduce((a, b) => a + b, 0) / (keyStrokeTimes.length || 1) / 1000).toFixed(2);
 
         if (document.getElementById('final-time')) document.getElementById('final-time').innerText = finalTime;
