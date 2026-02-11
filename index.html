@@ -8,6 +8,7 @@
 </head>
 <body>
     <div class="app-container" id="app-container">
+        <!-- SETUP SCREEN -->
         <div id="setup-area">
             <h1 class="brand">NP.PRO <span class="sub">TRAINER</span></h1>
             <div class="control-wrapper">
@@ -21,23 +22,23 @@
             <button id="start-btn">INITIALIZE SPRINT</button>
         </div>
 
+        <!-- GAME SCREEN -->
         <div id="game-area" class="hidden">
             <div class="hud">
                 <div>TIME: <span id="timer">0.0</span>s</div>
                 <div>PROGRESS: <span id="progress">0</span>/<span id="total-count">0</span></div>
             </div>
             <div id="target-number">----</div>
-            <input type="text" id="user-input" autocomplete="off" spellcheck="false" placeholder="READY..." disabled>
+            <input type="text" id="user-input" autocomplete="off" spellcheck="false" placeholder="TYPE THE NUMBER..." disabled>
         </div>
 
+        <!-- RESULTS SCREEN (Handled by JS alert/reload for now) -->
         <div id="results" class="hidden">
             <h2 class="results-title">SESSION REPORT</h2>
             <div class="metrics">
                 <div class="metric-row"><span>TOTAL TIME</span> <strong id="final-time">0</strong>s</div>
                 <div class="metric-row"><span>ACCURACY</span> <strong id="accuracy">0</strong>%</div>
-                <div class="metric-row"><span>AVG LATENCY</span> <strong id="avg-speed">0</strong>s</div>
             </div>
-            <ul id="leaderboard-list"></ul>
             <button onclick="location.reload()" class="btn-reset">RE-INITIALIZE</button>
         </div>
     </div>
