@@ -1,13 +1,12 @@
 window.onload = function() {
-    // 1. SELECTORS: We search for the elements by their tag type to avoid "null" errors
+    // 1. FORCED SELECTORS: No IDs used here to prevent the "null" crash
     const startBtn = document.querySelector('button'); 
     const inputField = document.querySelector('input');
-    const allSelects = document.querySelectorAll('select');
-    const testSizeSelect = allSelects[allSelects.length - 1]; // Grabs the last dropdown found
+    const selectMenu = document.querySelector('select');
     
-    // We search for these by ID, but add fallbacks just in case
-    const targetDisplay = document.getElementById('target-number') || document.querySelector('div[id*="target"]');
-    const appContainer = document.getElementById('app-container') || document.querySelector('.app-container') || document.body;
+    // Fallback for the target number display
+    const targetDisplay = document.getElementById('target-number') || document.querySelector('div[style*="font-size"]');
+    const appFrame = document.querySelector('.app-container') || document.querySelector('.app-frame') || document.body;
 
     let correctCount = 0;
     let totalAttempts = 0;
@@ -16,16 +15,19 @@ window.onload = function() {
     let keyStrokeTimes = [];
     let isLocked = false;
 
-    if (!startBtn) return;
+    if (!startBtn) {
+        alert("CRITICAL ERROR: No button found on page.");
+        return;
+    }
 
-    // 2. THE START COMMAND
+    // 2. THE START LOGIC
     startBtn.onclick = function() {
-        // Read test size safely
-        testSize = testSizeSelect ? parseInt(testSizeSelect.value) : 15;
+        // Read test size safely from whatever dropdown exists
+        testSize = selectMenu ? parseInt(selectMenu.value) : 15;
         
-        // Hide the setup and show the game manually
-        const setup = document.getElementById('setup-area') || document.querySelector('div[id*="setup"]');
-        const game = document.getElementById('game-area') || document.querySelector('div[id*="game"]');
+        // Find areas to hide/show by looking for common patterns
+        const setup = document.getElementById('setup-area') || document.querySelector('div:first-of-type');
+        const game = document.getElementById('game-area') || document.querySelector('.hidden') || document.querySelectorAll('div')[2];
         
         if (setup) setup.style.display = 'none';
         if (game) {
@@ -51,16 +53,15 @@ window.onload = function() {
             inputField.disabled = false; 
             inputField.focus(); 
         }
-        if (targetDisplay) targetDisplay.innerText = generateNum();
+        if (targetDisplay) {
+            // Generates 3-6 digits automatically
+            const len = Math.random() < 0.7 ? (Math.floor(Math.random() * 2) + 4) : (Math.random() < 0.5 ? 3 : 6);
+            let num = '';
+            for(let i=0; i<len; i++) num += Math.floor(Math.random() * 10);
+            targetDisplay.innerText = num;
+        }
         roundStartTime = Date.now();
         isLocked = false;
-    }
-
-    function generateNum() {
-        const length = Math.random() < 0.7 ? (Math.floor(Math.random() * 2) + 4) : (Math.random() < 0.5 ? 3 : 6);
-        let num = '';
-        for(let i=0; i<length; i++) num += Math.floor(Math.random() * 10);
-        return num;
     }
 
     // 3. INPUT DETECTION
@@ -78,14 +79,14 @@ window.onload = function() {
                 if (prog) prog.innerText = correctCount;
                 nextRound();
             } else if (!target.startsWith(val)) {
-                // Error Trigger
+                // ERROR PENALTY
                 isLocked = true;
                 totalAttempts++;
                 inputField.disabled = true;
-                if (appContainer) appContainer.style.borderColor = "#f85149";
+                if (appFrame) appFrame.style.borderColor = "red";
                 
                 setTimeout(() => {
-                    if (appContainer) appContainer.style.borderColor = "";
+                    if (appFrame) appFrame.style.borderColor = "";
                     nextRound();
                 }, 500);
             }
@@ -103,7 +104,8 @@ window.onload = function() {
     function endGame() {
         clearInterval(timerInterval);
         const finalTime = ((Date.now() - startTime) / 1000).toFixed(1);
-        alert("SPRINT COMPLETE\nTime: " + finalTime + "s\nAccuracy: " + Math.round((correctCount/totalAttempts)*100) + "%");
+        const acc = Math.round((correctCount / (totalAttempts || 1)) * 100);
+        alert(`SPRINT COMPLETE\nTime: ${finalTime}s\nAccuracy: ${acc}%`);
         location.reload();
     }
 };
