@@ -11,7 +11,7 @@
 body {
     background-color: var(--bg);
     color: var(--text);
-    font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
+    font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -21,16 +21,17 @@ body {
 
 .app-container {
     background: var(--card);
-    border: 1px solid var(--border);
-    padding: 3rem;
-    width: 440px;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    border: 2px solid var(--border);
+    padding: 2rem;
+    width: 400px;
+    border-radius: 8px;
+    transition: border-color 0.2s;
 }
 
-.brand { font-size: 1.1rem; letter-spacing: 2px; border-bottom: 1px solid var(--border); padding-bottom: 15px; margin: 0 0 2rem 0; }
+.brand { font-size: 1.2rem; letter-spacing: 2px; border-bottom: 1px solid var(--border); padding-bottom: 15px; margin-top: 0; }
 .sub { color: var(--muted); font-weight: 300; }
 
-.control-wrapper { margin-bottom: 2rem; }
+.control-wrapper { margin: 2rem 0; }
 label { display: block; font-size: 0.7rem; color: var(--muted); margin-bottom: 8px; }
 
 select, input {
@@ -52,19 +53,17 @@ select, input {
     padding: 15px;
     font-weight: bold;
     cursor: pointer;
-    font-size: 0.9rem;
 }
 
 #target-number {
-    font-size: 5rem;
+    font-size: 4rem;
     text-align: center;
-    padding: 3rem 0;
+    padding: 2rem 0;
     font-weight: 700;
+    letter-spacing: 4px;
 }
 
-.hud { display: flex; justify-content: space-between; font-size: 0.8rem; color: var(--muted); margin-bottom: 1rem; }
-.hidden { display: none; }
+.hud { display: flex; justify-content: space-between; font-size: 0.8rem; color: var(--muted); }
+.hidden { display: none !important; }
 
-.metrics { border-top: 1px solid var(--border); margin: 2rem 0; }
-.metric-row { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px dashed var(--border); }
-.btn-reset { width: 100%; background: none; border: 1px solid var(--border); color: var(--muted); padding: 12px; cursor: pointer; }
+.btn-reset { width: 100%; background: none; border: 1px solid var(--border); color: var(--muted); padding: 12px; cursor: pointer; margin-top: 20px; }
