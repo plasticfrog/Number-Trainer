@@ -1,5 +1,4 @@
-// Function to start the whole app
-function init() {
+window.onload = function() {
     let correctCount = 0;
     let totalAttempts = 0;
     let testSize = 15;
@@ -9,21 +8,40 @@ function init() {
     let keyStrokeTimes = [];
     let isLocked = false;
 
+    // Fixed IDs to match your current HTML structure exactly
     const startBtn = document.getElementById('start-btn');
     const inputField = document.getElementById('user-input');
     const targetDisplay = document.getElementById('target-number');
     const appContainer = document.getElementById('app-container');
+    const testSizeSelect = document.getElementById('test-size') || document.getElementById('test-length');
 
-    if (!startBtn) return; // Guard clause
+    if (!startBtn) {
+        console.error("Start button not found!");
+        return;
+    }
 
-    startBtn.onclick = () => {
-        testSize = parseInt(document.getElementById('test-size').value);
-        document.getElementById('total-count').innerText = testSize;
-        document.getElementById('setup-area').classList.add('hidden');
-        document.getElementById('game-area').classList.remove('hidden');
+    startBtn.onclick = function() {
+        // Use the select element found above
+        if (testSizeSelect) {
+            testSize = parseInt(testSizeSelect.value);
+        } else {
+            testSize = 15; // Default fallback
+        }
+
+        const totalDisplay = document.getElementById('total-count');
+        if (totalDisplay) totalDisplay.innerText = testSize;
+
+        const setupArea = document.getElementById('setup-area');
+        const gameArea = document.getElementById('game-area');
         
-        inputField.disabled = false;
-        inputField.focus();
+        if (setupArea) setupArea.classList.add('hidden');
+        if (gameArea) gameArea.classList.remove('hidden');
+        
+        if (inputField) {
+            inputField.disabled = false;
+            inputField.value = '';
+            inputField.focus();
+        }
         
         startTime = Date.now();
         startTimer();
@@ -35,12 +53,14 @@ function init() {
             endGame();
             return;
         }
-        inputField.value = '';
-        targetDisplay.innerText = generateNumber();
+        if (inputField) {
+            inputField.value = '';
+            inputField.disabled = false;
+            inputField.focus();
+        }
+        if (targetDisplay) targetDisplay.innerText = generateNumber();
         roundStartTime = Date.now();
         isLocked = false;
-        inputField.disabled = false;
-        inputField.focus();
     }
 
     function generateNumber() {
@@ -51,58 +71,62 @@ function init() {
         return num;
     }
 
-    inputField.oninput = () => {
-        if (isLocked) return;
-        const val = inputField.value;
-        const target = targetDisplay.innerText;
+    if (inputField) {
+        inputField.oninput = function() {
+            if (isLocked) return;
+            const val = inputField.value;
+            const target = targetDisplay ? targetDisplay.innerText : "";
 
-        if (target.startsWith(val)) {
-            if (val === target) {
-                keyStrokeTimes.push(Date.now() - roundStartTime);
-                correctCount++;
-                totalAttempts++;
-                document.getElementById('progress').innerText = correctCount;
-                nextRound();
+            if (target.startsWith(val)) {
+                if (val === target) {
+                    keyStrokeTimes.push(Date.now() - roundStartTime);
+                    correctCount++;
+                    totalAttempts++;
+                    const progDisplay = document.getElementById('progress');
+                    if (progDisplay) progDisplay.innerText = correctCount;
+                    nextRound();
+                }
+            } else {
+                triggerError();
             }
-        } else {
-            triggerError();
-        }
-    };
+        };
+    }
 
     function triggerError() {
         isLocked = true;
         totalAttempts++;
-        inputField.disabled = true;
-        appContainer.style.borderColor = "#f85149";
+        if (inputField) inputField.disabled = true;
+        if (appContainer) appContainer.style.borderColor = "#f85149";
         
         setTimeout(() => {
-            appContainer.style.borderColor = "#30363d";
+            if (appContainer) appContainer.style.borderColor = "#30363d";
             nextRound();
         }, 500);
     }
 
     function startTimer() {
+        const timerDisplay = document.getElementById('timer');
         timerInterval = setInterval(() => {
             const timeElapsed = ((Date.now() - startTime) / 1000).toFixed(1);
-            document.getElementById('timer').innerText = timeElapsed;
+            if (timerDisplay) timerDisplay.innerText = timeElapsed;
         }, 100);
     }
 
     function endGame() {
         clearInterval(timerInterval);
         const finalTime = ((Date.now() - startTime) / 1000).toFixed(1);
-        inputField.disabled = true;
-        document.getElementById('game-area').classList.add('hidden');
-        document.getElementById('results').classList.remove('hidden');
+        if (inputField) inputField.disabled = true;
+        
+        const gameArea = document.getElementById('game-area');
+        const resultsArea = document.getElementById('results');
+        if (gameArea) gameArea.classList.add('hidden');
+        if (resultsArea) resultsArea.classList.remove('hidden');
 
         const accuracy = Math.round((correctCount / totalAttempts) * 100);
         const avgLatency = (keyStrokeTimes.reduce((a, b) => a + b, 0) / (keyStrokeTimes.length || 1) / 1000).toFixed(2);
 
-        document.getElementById('final-time').innerText = finalTime;
-        document.getElementById('accuracy').innerText = accuracy;
-        document.getElementById('avg-speed').innerText = avgLatency + "s";
+        if (document.getElementById('final-time')) document.getElementById('final-time').innerText = finalTime;
+        if (document.getElementById('accuracy')) document.getElementById('accuracy').innerText = accuracy;
+        if (document.getElementById('avg-speed')) document.getElementById('avg-speed').innerText = avgLatency + "s";
     }
-}
-
-// Run the initialization
-init();
+};
