@@ -23,13 +23,27 @@
         </div>
 
         <!-- GAME SCREEN -->
-        <div id="game-area" style="display: none;">
+        <div id="game-area" class="hidden">
             <div class="hud">
                 <div>TIME: <span id="timer">0.0</span>s</div>
                 <div>PROGRESS: <span id="progress">0</span>/<span id="total-count">0</span></div>
             </div>
             <div id="target-number">----</div>
-            <input type="text" id="user-input" autocomplete="off" spellcheck="false" placeholder="TYPE THE NUMBER..." disabled>
+            <input type="text" id="user-input" autocomplete="off" spellcheck="false" placeholder="TYPE..." disabled>
+        </div>
+
+        <!-- RESULTS SCREEN -->
+        <div id="results-area" class="hidden">
+            <h2 class="results-title">SESSION REPORT</h2>
+            <div class="metrics">
+                <div class="metric-row"><span>TOTAL TIME</span> <strong id="final-time">0</strong>s</div>
+                <div class="metric-row"><span>ACCURACY</span> <strong id="final-accuracy">0</strong>%</div>
+            </div>
+            
+            <label>LOCAL LEADERBOARD (TOP 5)</label>
+            <ul id="leaderboard-list"></ul>
+            
+            <button onclick="location.reload()" class="btn-reset">RE-INITIALIZE</button>
         </div>
     </div>
     <script src="script.js"></script>
