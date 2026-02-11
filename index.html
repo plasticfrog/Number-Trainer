@@ -7,24 +7,24 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <div class="container">
+    <div class="container" id="main-container">
         <h1>Number Pad Pro</h1>
         
         <div id="setup-area">
-            <label for="time-select">Select Duration:</label>
-            <select id="time-select">
-                <option value="30">30 Seconds</option>
-                <option value="45">45 Seconds</option>
-                <option value="60">1 Minute</option>
+            <label for="test-size">Test Length:</label>
+            <select id="test-size">
+                <option value="15">15 Numbers</option>
+                <option value="25">25 Numbers</option>
+                <option value="40">40 Numbers</option>
             </select>
             <br><br>
-            <button id="start-btn">Start Test</button>
+            <button id="start-btn">Start Sprint</button>
         </div>
 
         <div id="game-area" class="hidden">
             <div id="stats">
-                <span>Time: <span id="timer">0</span>s</span>
-                <span>Correct: <span id="score-display">0</span></span>
+                <span>Time: <span id="timer">0.0</span>s</span>
+                <span>Progress: <span id="progress">0</span>/<span id="total-count">0</span></span>
             </div>
             <div id="target-number">----</div>
             <input type="text" id="user-input" autocomplete="off" placeholder="Type..." disabled>
@@ -33,9 +33,9 @@
         <div id="results" class="hidden">
             <h2>Performance Report</h2>
             <div class="detailed-stats">
-                <p>Normalized Score (CPM): <strong id="final-score">0</strong></p>
+                <p>Total Time: <strong id="final-time">0</strong>s</p>
                 <p>Accuracy: <span id="accuracy">0</span>%</p>
-                <p>Avg. Speed: <span id="avg-speed">0</span></p>
+                <p>Avg. Speed: <span id="avg-speed">0</span>s per set</p>
             </div>
             <h3>Local Leaderboard</h3>
             <ul id="leaderboard-list"></ul>
